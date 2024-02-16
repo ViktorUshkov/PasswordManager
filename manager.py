@@ -4,7 +4,7 @@
 экземпляра класса
 """
 
-import cryptography
+from cryptography.fernet import Fernet
 
 
 class PasswordManager:
@@ -24,7 +24,7 @@ class PasswordManager:
         self.master_password = master_password
         self.file = file
 
-    def add_passwords(self, service: str, login: str, password: str) -> None:
+    def add_password(self, service: str, login: str, password: str) -> None:
         """
         Функция, добавляющая запись, состоящую из названия интернет-сервиса (service), логина (login) и пароля (password)
         в файл self.file
@@ -47,13 +47,48 @@ class PasswordManager:
                 print(f'{service}: логин - {login}, пароль - {password}')
 
     def save_encrypt_key(self) -> None:
-        pass
+        """
+        Функция, генерирующая ключ для шифрования паролей и записывающая его в файл KEY_FILE_PATH
+        """
+        key: bytes = Fernet.generate_key()
+        with open(self.KEY_FILE_PATH, 'wb') as file:
+            file.write(key)
 
-    def get_encrypt_key(self) -> str:
-        pass
+    def get_encrypt_key(self) -> bytes:
+        """
+        Функция, возвращающая ключ для шифрования паролей из файла KEY_FILE_PATH
+        :return: ключ для шифрования
+        """
+        with open(self.KEY_FILE_PATH, 'rb') as file:
+            key: bytes = file.read()
+        return key
 
     def check_master_password(self) -> bool:
         pass
 
-    def interact(self) -> None:
+    def dict_validation(self, dict_to_check: dict[str]) -> bool:
+        """
+        Функция для валидации словаря, передаваемого в функцию interact
+        :param dict_to_check: словарь для валидации
+
+        :raise TypeError: ошибка вызывается, если передан не словарь, или его значения не являются строками
+        :raise ValueError: ошибка вызывается, если в словаре нет какого-либо из ключей "service", "login", "password"
+
+        :return: True, если словарь прошел валидацию, в ином случае будет вызвана ошибка
+        """
+        pass
+
+    def interact(self, new_password: dict[str] = None) -> None:
+        """
+        Функция для взаимодействия с экземпляром класса - при вызове без аргументов вызывается функция view_passwords(),
+        при вызове с аргументом
+
+        :param new_password: словарь с аргументами для записи нового пароля, должен содержать ключи service, login и password
+        """
+        if not new_password:
+            self.view_passwords()
+        elif self.dict_validation(new_password):
+            self.add_password(new_password["service"], new_password["login"], new_password["password"])
+
+    def encrypt(self) -> None:
         pass
