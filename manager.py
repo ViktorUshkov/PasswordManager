@@ -28,8 +28,7 @@ class PasswordManager:
         self.master_password = master_password
         self.file = file
         self._save_encrypt_key()
-        self._full_encrypt_key = self._set_full_encrypt_key()
-        self.fernet = Fernet(self.full_encrypt_key)
+        self.fernet = Fernet(self._get_encrypt_key())
 
     @property
     def master_password(self) -> str:
@@ -74,20 +73,6 @@ class PasswordManager:
             raise ValueError("Файл должен быть формата .txt")
 
         self._file = new_file
-
-    @property
-    def full_encrypt_key(self) -> bytes:
-        """
-        :return: возвращает полный ключ шифрования
-        """
-        return self._full_encrypt_key
-
-    def _set_full_encrypt_key(self) -> bytes:
-        """
-        Создает и возвращает полный ключ шифрования путем соединения сгенерированного ключа и мастер-пароля
-        :return: полный ключ шифрования
-        """
-        return self._get_encrypt_key() + self.master_password.encode()
 
     def _add_password(self, service: str, login: str, password: str) -> None:
         """
@@ -184,4 +169,3 @@ class PasswordManager:
                 self._view_passwords(False)
         elif self._dict_validation(new_password):
             self._add_password(new_password["service"], new_password["login"], new_password["password"])
-
